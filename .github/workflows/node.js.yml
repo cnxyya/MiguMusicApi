@@ -1,30 +1,73 @@
 # This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: Node.js CI
+#name: Node.js CI
 
+#on:
+#  push:
+#    branches: [ master ]
+#  pull_request:
+#    branches: [ master ]
+
+#jobs:
+#  build:
+
+#    runs-on: ubuntu-latest
+
+#    strategy:
+#      matrix:
+#        node-version: [12.x, 14.x, 16.x]
+#        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+#    steps:
+#    - uses: actions/checkout@v2
+#    - name: Use Node.js ${{ matrix.node-version }}
+#      uses: actions/setup-node@v2
+#      with:
+#       node-version: ${{ matrix.node-version }}
+#        cache: 'npm'
+#    - run: npm install
+#    - run: npm start
+# 当前工作流的名称
+name: XXX CI
+# ci触发的条件
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  push: # 什么请求触发
+    branches: 
+    - master： # 作用在哪些分支上
 
-jobs:
-  build:
-
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [12.x, 14.x, 16.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
-    steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
+jobs: # 构建的任务，一个工作流有多个构建任务，
+  build-and-deploy:
+    runs-on: ubuntu-latest # 在什么服务器上面执行这些任务，这里使用最新版本的ubuntu
+    
+    steps: # 构建任务的步骤，一个任务可分为多个步骤
+    
+    # 步骤1 拉取仓库代码
+    - name: Checkout # 步骤名称
+      uses: actions/checkout@v2 
+      
+    # 步骤2 给当前服务器安装node
+    - name: use node
       uses: actions/setup-node@v2
       with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm install
-    - run: npm start
+        node-version: 16 # node版本
+        cache: "yarn"
+          
+    # 步骤3 下载项目依赖    
+    - name: install
+      run: yarn install
+      
+    # 步骤4 打包node项目
+    - name: build
+      run: yarn xxx:build # 此处是你node项目的构建脚本
+      
+    # 步骤5 部署项目
+    - name: deploy
+      uses: JamesIves/github-pages-deploy-action@4.1.6
+      with:
+        # 供用户访问的github access_token 下面的变量是在准备阶段自定义的变量
+        access_token: ${{ secrets.access_token }} 
+        # 发布到指定分支
+        branch: gh-pages
+        # 指定发布的打包后的文件
+        folder: xx/xxx/xx 
